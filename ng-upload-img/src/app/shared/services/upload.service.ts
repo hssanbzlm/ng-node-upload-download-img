@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { User } from 'src/app/models/user';
 
@@ -8,9 +8,9 @@ import { User } from 'src/app/models/user';
 export class UploadService {
   constructor(private http: HttpClient) {}
 
-  upload(idUser: string, formData: FormData) {
+  upload(idUser: string, formData: FormData, obj) {
     const url = `http://localhost:3000/user/post/${idUser}`;
-    return this.http.post(url, formData);
+    return this.http.post(url, formData, obj);
   }
 
   download(idUser: string) {

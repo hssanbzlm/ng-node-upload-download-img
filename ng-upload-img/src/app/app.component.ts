@@ -1,8 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpEventType } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { User } from './models/user';
 import { UploadService } from './shared/services/upload.service';
 
 @Component({
@@ -14,7 +13,12 @@ export class AppComponent implements OnInit {
   title = 'ng-upload-img';
   registerForm: FormGroup;
   selectedFile: File = null;
+  startPorgress: boolean;
+  uploaded: boolean;
   img: SafeResourceUrl;
+  value: number;
+  color: string;
+  mode: string = 'Determinate';
 
   constructor(
     private fb: FormBuilder,
@@ -22,24 +26,39 @@ export class AppComponent implements OnInit {
     private sanitizer: DomSanitizer
   ) {}
   ngOnInit(): void {
+    //we suppose the file is a part of a form
     this.registerForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
       filess: ['', Validators.required],
     });
   }
-
+  initializeProgressBar() {
+    this.color = 'warn';
+    this.value = 0;
+    this.startPorgress = false;
+    this.uploaded = false;
+  }
   onFileChange(event) {
     this.selectedFile = event.target.files[0];
   }
 
   submit() {
+    this.initializeProgressBar();
     const fd = new FormData();
-    fd.append('avatar', this.selectedFile);
-    this.service.upload('1', fd).subscribe((v) => {
-      console.log(fd);
-      console.log(v);
-    });
+    fd.append('avatar', this.selectedFile, this.selectedFile.name);
+
+    this.service
+      .upload('1', fd, { reportProgress: true, observe: 'events' })
+      .subscribe((data) => {
+        this.startPorgress = true;
+        if (data['type'] === HttpEventType.UploadProgress) {
+          this.value = Math.round((data['loaded'] / data['total']) * 100);
+          console.log(Math.round((data['loaded'] / data['total']) * 100));
+        } else if (data['type'] === HttpEventType.Response) {
+          console.log(data);
+          this.color = 'primary';
+          this.uploaded = true;
+        }
+      });
   }
 
   getImg() {

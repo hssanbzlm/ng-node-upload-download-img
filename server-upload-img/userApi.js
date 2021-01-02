@@ -2,10 +2,7 @@ const { Buffer } = require("buffer");
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const users = [
-  { id: 1, name: "hssan", lastName: "Bouzlima", img: "" },
-  { id: 2, name: "Sirine", lastName: "trabelsi", img: "" },
-];
+const users = [{ id: 1, name: "hssan", lastName: "Bouzlima", img: "" }];
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
